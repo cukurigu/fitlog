@@ -1,0 +1,224 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1>{% if mode == "edit" %}Edit Workout{% else %}Create Workout{% endif %}</h1>
+
+    <form method="POST" id="workout-form">
+        {% csrf_token %}
+
+        <div class="mb-3">
+            {{ form.title.label_tag }} {{ form.title }}
+            {{ form.title.errors }}
+        </div>
+        <div class="mb-3">
+            {{ form.date.label_tag }} {{ form.date }}
+            {{ form.date.errors }}
+        </div>
+        <div class="mb-3">
+            {{ form.duration_minutes.label_tag }} {{ form.duration_minutes }}
+            {{ form.duration_minutes.errors }}
+        </div>
+        <div class="mb-3">
+            {{ form.notes.label_tag }} {{ form.notes }}
+            {{ form.notes.errors }}
+        </div>
+
+        <hr>
+        <h3>Exercises</h3>
+
+        {{ exercise_formset.management_form }}
+
+        <div id="exercises-container">
+            {% for ex_form, set_formset in exercise_set_pairs %}
+            {{ set_formset.management_form }}
+
+            <div class="exercise border p-3 mb-3"
+                 data-exercise-index="{{ forloop.counter0 }}">
+
+                <button type="button"
+                        class="btn btn-danger btn-sm float-end remove-exercise">
+                    Remove Exercise
+                </button>
+
+                <div class="mb-2">
+                    {{ ex_form.exercise.label_tag }} {{ ex_form.exercise }}
+                    {{ ex_form.exercise.errors }}
+                    {{ ex_form.order }}
+                    {{ ex_form.id }}
+                    {% if ex_form.DELETE %}
+                        <div style="display:none">{{ ex_form.DELETE }}</div>
+                    {% endif %}
+                </div>
+
+                <h5>Sets</h5>
+                <div class="sets-container">
+                    {% for set_form in set_formset %}
+                    <div class="set mb-2 border p-2">
+                        <button type="button"
+                                class="btn btn-danger btn-sm float-end remove-set">
+                            Remove Set
+                        </button>
+                        <div>
+                            {{ set_form.set_number.label_tag }} {{ set_form.set_number }}
+                            {{ set_form.weight.label_tag }} {{ set_form.weight }}
+                            {{ set_form.reps.label_tag }} {{ set_form.reps }}
+                            {{ set_form.id }}
+                            {% if set_form.DELETE %}
+                                <div style="display:none">{{ set_form.DELETE }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <button type="button" class="btn btn-secondary btn-sm mt-2 add-set">
+                    + Add Set
+                </button>
+            </div>
+            {% endfor %}
+        </div>
+
+        <button type="button" class="btn btn-primary mb-3" id="add-exercise">
+            + Add Exercise
+        </button>
+        <br>
+        <button type="submit" class="btn btn-success">
+            {% if mode == "edit" %}Update Workout{% else %}Save Workout{% endif %}
+        </button>
+    </form>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<script>
+$(function () {
+
+    var exerciseTotal = parseInt($('#id_exercises-TOTAL_FORMS').val(), 10);
+
+    $('#exercises-container .exercise').each(function (i) {
+        $(this).find('input[name$="-order"]').val(i + 1);
+    });
+
+    function replaceIndex(str, oldIdx, newIdx) {
+        str = str.replace(new RegExp('(exercises-)' + oldIdx + '(-)', 'g'), '$1' + newIdx + '$2');
+        str = str.replace(new RegExp('(sets-)' + oldIdx + '(-)', 'g'), '$1' + newIdx + '$2');
+        return str;
+    }
+
+    function renumberSets($container) {
+        $container.find('.set').each(function (i) {
+            $(this).find('input[name$="-set_number"]').val(i + 1);
+        });
+    }
+
+    function updateExerciseTotal() {
+        exerciseTotal = $('#exercises-container .exercise').length;
+        $('#id_exercises-TOTAL_FORMS').val(exerciseTotal);
+    }
+
+    function updateSetTotal($exercise) {
+        var exIdx = $exercise.data('exercise-index');
+        var setCount = $exercise.find('.set').length;
+        $('#id_sets-' + exIdx + '-TOTAL_FORMS').val(setCount);
+    }
+
+    $('#add-exercise').on('click', function () {
+        var newIdx = exerciseTotal;
+
+        var $newExercise = $([
+            '<div class="exercise border p-3 mb-3" data-exercise-index="' + newIdx + '">',
+            '<input type="hidden" name="sets-' + newIdx + '-TOTAL_FORMS" id="id_sets-' + newIdx + '-TOTAL_FORMS" value="0">',
+            '<input type="hidden" name="sets-' + newIdx + '-INITIAL_FORMS" id="id_sets-' + newIdx + '-INITIAL_FORMS" value="0">',
+            '<input type="hidden" name="sets-' + newIdx + '-MIN_NUM_FORMS" id="id_sets-' + newIdx + '-MIN_NUM_FORMS" value="0">',
+            '<input type="hidden" name="sets-' + newIdx + '-MAX_NUM_FORMS" id="id_sets-' + newIdx + '-MAX_NUM_FORMS" value="1000">',
+            '<button type="button" class="btn btn-danger btn-sm float-end remove-exercise">Remove Exercise</button>',
+            '<div class="mb-2"></div>',
+            '<h5>Sets</h5>',
+            '<div class="sets-container"></div>',
+            '<button type="button" class="btn btn-secondary btn-sm mt-2 add-set">+ Add Set</button>',
+            '</div>'
+        ].join(''));
+
+        var $firstSelect = $('#exercises-container .exercise:first select[name$="-exercise"]');
+        if ($firstSelect.length) {
+            var $selectClone = $firstSelect.clone();
+            $selectClone
+                .attr('name', 'exercises-' + newIdx + '-exercise')
+                .attr('id', 'id_exercises-' + newIdx + '-exercise')
+                .val('');
+            $newExercise.find('.mb-2').prepend(
+                $('<label>').attr('for', 'id_exercises-' + newIdx + '-exercise').text('Exercise:'),
+                $selectClone
+            );
+        }
+
+        $newExercise.find('.mb-2').append(
+            $('<input>').attr({type: 'hidden', name: 'exercises-' + newIdx + '-order', value: newIdx + 1}),
+            $('<input>').attr({type: 'hidden', name: 'exercises-' + newIdx + '-id', value: ''})
+        );
+
+        $('#exercises-container').append($newExercise);
+        exerciseTotal++;
+        $('#id_exercises-TOTAL_FORMS').val(exerciseTotal);
+    });
+
+    $(document).on('click', '.remove-exercise', function () {
+        var $exercise = $(this).closest('.exercise');
+        var exIdx = $exercise.data('exercise-index');
+        var $deleteCheckbox = $exercise.find('input[name="exercises-' + exIdx + '-DELETE"]');
+
+        if ($deleteCheckbox.length) {
+            $deleteCheckbox.prop('checked', true);
+            $exercise.hide();
+        } else {
+            $exercise.remove();
+            updateExerciseTotal();
+        }
+    });
+
+    $(document).on('click', '.add-set', function () {
+        var $exercise = $(this).closest('.exercise');
+        var exIdx = $exercise.data('exercise-index');
+        var $container = $exercise.find('.sets-container');
+        var setIdx = $container.find('.set').length;
+        var setNum = setIdx + 1;
+
+        var $newSet = $([
+            '<div class="set mb-2 border p-2">',
+            '<button type="button" class="btn btn-danger btn-sm float-end remove-set">Remove Set</button>',
+            '<div>',
+            '<label>Set #</label>',
+            '<input type="number" name="sets-' + exIdx + '-' + setIdx + '-set_number" value="' + setNum + '" style="width:60px">',
+            '<label> Weight</label>',
+            '<input type="number" step="0.01" name="sets-' + exIdx + '-' + setIdx + '-weight" placeholder="kg" style="width:80px">',
+            '<label> Reps</label>',
+            '<input type="number" name="sets-' + exIdx + '-' + setIdx + '-reps" placeholder="reps" style="width:70px">',
+            '<input type="hidden" name="sets-' + exIdx + '-' + setIdx + '-id" value="">',
+            '</div>',
+            '</div>'
+        ].join(''));
+
+        $container.append($newSet);
+        $('#id_sets-' + exIdx + '-TOTAL_FORMS').val(setIdx + 1);
+    });
+
+    $(document).on('click', '.remove-set', function () {
+        var $set = $(this).closest('.set');
+        var $exercise = $set.closest('.exercise');
+        var $deleteCheckbox = $set.find('input[name$="-DELETE"]');
+
+        if ($deleteCheckbox.length) {
+            $deleteCheckbox.prop('checked', true);
+            $set.hide();
+        } else {
+            $set.remove();
+        }
+
+        renumberSets($exercise.find('.sets-container'));
+        updateSetTotal($exercise);
+    });
+
+});
+</script>
+{% endblock %}

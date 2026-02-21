@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1>{{ workout.title }}</h1>
+    <p class="text-muted">{{ workout.date }}{% if workout.duration_minutes %} &mdash; {{ workout.duration_minutes }} mins{% endif %}</p>
+    {% if workout.notes %}
+        <p>{{ workout.notes }}</p>
+    {% endif %}
+
+    <hr>
+
+    {% for group in exercise_groups %}
+    <div class="mb-4">
+        <h5>{{ group.exercise.name }}</h5>
+        <table class="table table-sm table-bordered w-auto">
+            <thead class="table-light">
+                <tr>
+                    <th>Set</th>
+                    <th>Weight (kg)</th>
+                    <th>Reps</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for s in group.sets %}
+                <tr>
+                    <td>{{ s.set_number }}</td>
+                    <td>{{ s.weight }}</td>
+                    <td>{{ s.reps }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% empty %}
+        <p class="text-muted">No exercises logged for this workout.</p>
+    {% endfor %}
+
+    <a href="{% url 'workout-update' workout.pk %}" class="btn btn-primary btn-sm">Edit</a>
+    <a href="{% url 'workout-list' %}" class="btn btn-secondary btn-sm">Back</a>
+</div>
+{% endblock %}

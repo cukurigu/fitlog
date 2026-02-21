@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+{% block title %}Exercise Form{% endblock %}
+{% block content %}
+<h2>{% if form.instance.pk %}Edit{% else %}Create{% endif %} Exercise</h2>
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn btn-success">Save</button>
+    <a class="btn btn-secondary" href="{% url 'exercise-list' %}">Cancel</a>
+</form>
+{% endblock %}

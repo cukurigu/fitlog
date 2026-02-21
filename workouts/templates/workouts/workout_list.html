@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% block title %}Workouts{% endblock %}
+{% block content %}
+<h2>All Workouts</h2>
+<a class="btn btn-success mb-2" href="{% url 'workout-create' %}">Add Workout</a>
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Title</th>
+            <th>Date</th>
+            <th>Duration</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for workout in workouts %}
+        <tr>
+            <td>{{ workout.title }}</td>
+            <td>{{ workout.date }}</td>
+            <td>{{ workout.duration_minutes }} min</td>
+            <td>
+                <a class="btn btn-primary btn-sm" href="{% url 'workout-detail' workout.pk %}">View</a>
+                <a class="btn btn-warning btn-sm" href="{% url 'workout-update' workout.pk %}">Edit</a>
+                <a class="btn btn-danger btn-sm" href="{% url 'workout-delete' workout.pk %}">Delete</a>
+            </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="4">No workouts yet.</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
