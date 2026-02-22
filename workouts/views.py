@@ -4,37 +4,27 @@ from django.views import View
 from django.views.generic import ListView, DeleteView
 from django.forms import inlineformset_factory
 from django import forms as django_forms
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.decorators import login_required
+from django.utils.decorators import method_decorator
+from django.db.models import Max
+import json
+from datetime import date, timedelta
+import collections
 
 from .models import Workout, WorkoutSet, WorkoutExercise
 from .forms import WorkoutForm, WorkoutSetFormSet
 
 
-class WorkoutListView(ListView):
-    model = Workout
-    template_name = "workouts/workout_list.html"
-    context_object_name = "workouts"
-    ordering = ["-date"]
 
-
-class WorkoutDetailView(View):
-    def get(self, request, pk):
-        workout = get_object_or_404(Workout, pk=pk)
-
-        merged = {}
-        for we in workout.exercises.select_related("exercise").prefetch_related("sets"):
-            exercise = we.exercise
-            if exercise.id not in merged:
-                merged[exercise.id] = {"exercise": exercise, "sets": []}
-            merged[exercise.id]["sets"].extend(list(we.sets.all()))
-
-        for entry in merged.values():
-            for i, s in enumerate(entry["sets"], start=1):
-                s.set_number = i
-
-        return render(request, "workouts/workout_detail.html", {
-            "workout": workout,
-            "exercise_groups": list(merged.values()),
-        })
+def _make_exercise_formset(extra):
+    return inlineformset_factory(
+        Workout, WorkoutExercise,
+        fields=["exercise", "order"],
+        widgets={"order": django_forms.HiddenInput()},
+        extra=extra,
+        can_delete=True,
+    )
 
 
 def _build_set_formsets(post_data, exercise_formset):
@@ -85,16 +75,146 @@ def _save_exercises_and_sets(workout, exercise_formset, set_formsets):
             s.save()
 
 
-def _make_exercise_formset(extra):
-    return inlineformset_factory(
-        Workout, WorkoutExercise,
-        fields=["exercise", "order"],
-        widgets={"order": django_forms.HiddenInput()},
-        extra=extra,
-        can_delete=True,
+def _get_personal_records(user):
+    records = {}
+    sets = WorkoutSet.objects.filter(
+        workout_exercise__workout__user=user
+    ).select_related("workout_exercise__exercise")
+    for s in sets:
+        ex_id = s.workout_exercise.exercise_id
+        if ex_id not in records or s.weight > records[ex_id]:
+            records[ex_id] = s.weight
+    return records
+
+
+def _contribution_data(user):
+    today = date.today()
+    one_year_ago = today - timedelta(days=364)
+
+    workout_dates = set(
+        Workout.objects.filter(user=user, date__gte=one_year_ago)
+        .values_list("date", flat=True)
     )
 
+    start = one_year_ago - timedelta(days=one_year_ago.weekday() + 1)
+    if start.weekday() != 6:  # ensure Sunday
+        start = start - timedelta(days=(start.weekday() + 1) % 7)
 
+    weeks = []
+    current = start
+    while current <= today:
+        week = []
+        for d in range(7):
+            day = current + timedelta(days=d)
+            count = 1 if day in workout_dates else 0
+            if day > today:
+                level = -1  # future, render as empty
+            elif count:
+                level = 2
+            else:
+                level = 0
+            week.append({"date": day.isoformat(), "count": count, "level": level})
+        weeks.append(week)
+        current += timedelta(weeks=1)
+
+    streak = 0
+    rest_days = 0
+    check = today
+    while True:
+        if check in workout_dates:
+            streak += 1
+            rest_days = 0
+        else:
+            rest_days += 1
+            if rest_days > 2:
+                break
+        check -= timedelta(days=1)
+        if check < one_year_ago:
+            break
+
+    return weeks, streak, workout_dates
+
+
+
+@method_decorator(login_required, name="dispatch")
+class WorkoutListView(ListView):
+    model = Workout
+    template_name = "workouts/workout_list.html"
+    context_object_name = "workouts"
+    ordering = ["-date"]
+
+    def get_queryset(self):
+        return Workout.objects.filter(user=self.request.user).order_by("-date")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        weeks, streak, _ = _contribution_data(self.request.user)
+        context["contribution_weeks"] = json.dumps(weeks)
+        context["streak"] = streak
+        return context
+
+
+
+@method_decorator(login_required, name="dispatch")
+class WorkoutDetailView(View):
+    def get(self, request, pk):
+        workout = get_object_or_404(Workout, pk=pk, user=request.user)
+        all_records = _get_personal_records(request.user)
+
+        merged = {}
+        for we in workout.exercises.select_related("exercise").prefetch_related("sets"):
+            exercise = we.exercise
+            if exercise.id not in merged:
+                merged[exercise.id] = {"exercise": exercise, "sets": [], "has_pr": False}
+            merged[exercise.id]["sets"].extend(list(we.sets.all()))
+
+        for entry in merged.values():
+            for i, s in enumerate(entry["sets"], start=1):
+                s.set_number = i
+            ex_id = entry["exercise"].id
+            best_in_workout = max((s.weight for s in entry["sets"]), default=None)
+            if best_in_workout and all_records.get(ex_id) == best_in_workout:
+                entry["has_pr"] = True
+
+        return render(request, "workouts/workout_detail.html", {
+            "workout": workout,
+            "exercise_groups": list(merged.values()),
+        })
+
+@login_required
+def exercise_progress(request, exercise_id):
+    from exercises.models import Exercise
+    exercise = get_object_or_404(Exercise, pk=exercise_id)
+
+    rows = (
+        WorkoutSet.objects
+        .filter(
+            workout_exercise__exercise=exercise,
+            workout_exercise__workout__user=request.user,
+        )
+        .select_related("workout_exercise__workout")
+        .order_by("workout_exercise__workout__date")
+    )
+
+    # Best weight per workout date
+    best_by_date = collections.OrderedDict()
+    for s in rows:
+        d = s.workout_exercise.workout.date.isoformat()
+        if d not in best_by_date or s.weight > best_by_date[d]:
+            best_by_date[d] = float(s.weight)
+
+    chart_data = {
+        "labels": list(best_by_date.keys()),
+        "data": list(best_by_date.values()),
+    }
+
+    return render(request, "workouts/exercise_progress.html", {
+        "exercise": exercise,
+        "chart_data": json.dumps(chart_data),
+    })
+
+
+@method_decorator(login_required, name="dispatch")
 class WorkoutCreateView(View):
     template_name = "workouts/workout_form.html"
 
@@ -125,7 +245,9 @@ class WorkoutCreateView(View):
         )
 
         if forms_valid:
-            workout = workout_form.save()
+            workout = workout_form.save(commit=False)
+            workout.user = request.user
+            workout.save()
             exercise_formset.instance = workout
             _save_exercises_and_sets(workout, exercise_formset, set_formsets)
             return redirect(workout.get_absolute_url())
@@ -134,6 +256,7 @@ class WorkoutCreateView(View):
                       self._context(workout_form, exercise_formset, set_formsets))
 
 
+@method_decorator(login_required, name="dispatch")
 class WorkoutUpdateView(View):
     template_name = "workouts/workout_form.html"
 
@@ -147,7 +270,7 @@ class WorkoutUpdateView(View):
         }
 
     def get(self, request, pk):
-        workout = get_object_or_404(Workout, pk=pk)
+        workout = get_object_or_404(Workout, pk=pk, user=request.user)
         workout_form = WorkoutForm(instance=workout)
         exercise_formset = _make_exercise_formset(extra=0)(instance=workout, prefix="exercises")
         set_formsets = _build_set_formsets(None, exercise_formset)
@@ -155,7 +278,7 @@ class WorkoutUpdateView(View):
                       self._context(workout, workout_form, exercise_formset, set_formsets))
 
     def post(self, request, pk):
-        workout = get_object_or_404(Workout, pk=pk)
+        workout = get_object_or_404(Workout, pk=pk, user=request.user)
         workout_form = WorkoutForm(request.POST, instance=workout)
         exercise_formset = _make_exercise_formset(extra=0)(request.POST, instance=workout, prefix="exercises")
         set_formsets = _build_set_formsets(request.POST, exercise_formset)
@@ -174,8 +297,11 @@ class WorkoutUpdateView(View):
         return render(request, self.template_name,
                       self._context(workout, workout_form, exercise_formset, set_formsets))
 
-
+@method_decorator(login_required, name="dispatch")
 class WorkoutDeleteView(DeleteView):
     model = Workout
     template_name = "workouts/workout_confirm_delete.html"
     success_url = reverse_lazy("workout-list")
+
+    def get_queryset(self):
+        return Workout.objects.filter(user=self.request.user)

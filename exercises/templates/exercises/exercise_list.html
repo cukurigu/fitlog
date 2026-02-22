@@ -1,32 +1,89 @@
-{% extends 'base.html' %}
-{% block title %}Exercises{% endblock %}
+{% extends "base.html" %}
 {% block content %}
-<h2>All Exercises</h2>
-<a class="btn btn-success mb-2" href="{% url 'exercise-create' %}">Add Exercise</a>
-<table class="table table-striped">
-    <thead>
-        <tr>
-            <th>Name</th>
-            <th>Muscle Group</th>
-            <th>Muscle</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for exercise in exercises %}
-        <tr>
-            <td>{{ exercise.name }}</td>
-            <td>{{ exercise.muscle.category }}</td>
-            <td>{{ exercise.muscle.name }}</td>
-            <td>
-                <a class="btn btn-primary btn-sm" href="{% url 'exercise-detail' exercise.pk %}">View</a>
-                <a class="btn btn-warning btn-sm" href="{% url 'exercise-update' exercise.pk %}">Edit</a>
-                <a class="btn btn-danger btn-sm" href="{% url 'exercise-delete' exercise.pk %}">Delete</a>
-            </td>
-        </tr>
-        {% empty %}
-        <tr><td colspan="4">No exercises yet.</td></tr>
-        {% endfor %}
-    </tbody>
-</table>
+
+<style>
+    .muscle-header {
+        cursor: pointer;
+        user-select: none;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 14px;
+        background: #f1f3f5;
+        border-radius: 8px;
+        border: 1px solid #dee2e6;
+        transition: background 0.2s;
+    }
+    .muscle-header:hover { background: #e2e6ea; }
+    .muscle-header .chevron {
+        transition: transform 0.3s ease;
+        font-style: normal;
+        font-size: 0.85rem;
+        color: #6c757d;
+    }
+    .muscle-header.open .chevron { transform: rotate(180deg); }
+    .exercise-collapse {
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.35s ease, opacity 0.3s ease;
+        opacity: 0;
+    }
+    .exercise-collapse.open {
+        max-height: 2000px;
+        opacity: 1;
+    }
+</style>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>Exercises</h1>
+    <a href="{% url 'exercise-create' %}" class="btn btn-success">+ Add Exercise</a>
+</div>
+
+{% for muscle_name, exercises in grouped.items %}
+<div class="mb-3">
+    <div class="muscle-header" onclick="toggleMuscle(this)">
+        <span>
+            <strong>{{ muscle_name }}</strong>
+            <span class="text-muted ms-2 small">{{ exercises|length }} exercise{{ exercises|length|pluralize }}</span>
+        </span>
+        <i class="chevron">▼</i>
+    </div>
+    <div class="exercise-collapse">
+        <div class="list-group shadow-sm mt-1">
+            {% for exercise in exercises %}
+            <div class="list-group-item d-flex justify-content-between align-items-center">
+                <div>
+                    <strong>{{ exercise.name }}</strong>
+                    {% if exercise.is_custom %}
+                        <span class="badge bg-info text-dark ms-2 small">Custom</span>
+                    {% endif %}
+                    {% if exercise.description %}
+                        <div class="text-muted small">{{ exercise.description }}</div>
+                    {% endif %}
+                </div>
+                {% if exercise.is_custom and exercise.created_by == request.user %}
+                <form method="POST" action="{% url 'exercise-delete' exercise.pk %}"
+                      onsubmit="return confirm('Delete {{ exercise.name }}?')">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-outline-danger btn-sm">Delete</button>
+                </form>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% empty %}
+<p class="text-muted">No exercises found.</p>
+{% endfor %}
+
+<script>
+function toggleMuscle(header) {
+    const collapse = header.nextElementSibling;
+    const isOpen = collapse.classList.contains('open');
+    collapse.classList.toggle('open', !isOpen);
+    header.classList.toggle('open', !isOpen);
+}
+</script>
+
 {% endblock %}

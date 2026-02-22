@@ -1,0 +1,119 @@
+body {
+    background-color: #f8f9fa;
+    color: #333;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.container {
+    max-width: 900px;
+    background: #ffffff;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+
+h1, h3, h5 {
+    font-weight: 700;
+    color: #2c3e50;
+}
+
+hr {
+    margin: 2rem 0;
+    opacity: 0.1;
+}
+
+.form-control, input[type="text"], input[type="number"], select, textarea {
+    border-radius: 8px;
+    border: 1px solid #dee2e6;
+    padding: 10px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.form-control:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15);
+}
+
+.exercise {
+    background-color: #ffffff;
+    border: 1px solid #e0e0e0 !important;
+    border-left: 5px solid #0d6efd !important;
+    border-radius: 10px;
+    margin-bottom: 25px;
+    position: relative;
+    transition: transform 0.2s;
+}
+
+.exercise:hover {
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.set {
+    background-color: #fdfdfd;
+    border: 1px solid #eee !important;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.set label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #6c757d;
+    margin-bottom: 0;
+}
+
+.set input {
+    border-radius: 4px;
+    border: 1px solid #ddd;
+    padding: 4px 8px;
+}
+
+.btn {
+    border-radius: 6px;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.8rem;
+    letter-spacing: 0.5px;
+    padding: 8px 16px;
+}
+
+.btn-primary { background-color: #0d6efd; border: none; }
+.btn-success { background-color: #198754; padding: 12px 30px; font-size: 1rem; }
+.btn-danger { background-color: #dc3545; }
+
+.remove-exercise {
+    margin-top: -5px;
+}
+
+.add-set {
+    background-color: #e9ecef;
+    color: #495057;
+    border: 1px dashed #ced4da;
+}
+
+.add-set:hover {
+    background-color: #dee2e6;
+    color: #212529;
+}
+
+.errorlist {
+    color: #dc3545;
+    list-style: none;
+    padding-left: 0;
+    font-size: 0.85rem;
+    margin-top: 5px;
+}
+
+@media (max-width: 576px) {
+    .set {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    .set input {
+        width: 100% !important;
+    }
+}

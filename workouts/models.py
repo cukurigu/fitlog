@@ -1,7 +1,10 @@
 from django.db import models
 from django.urls import reverse
+from django.contrib.auth.models import User
+
 
 class Workout(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="workouts")
     title = models.CharField(max_length=100)
     date = models.DateField()
     duration_minutes = models.PositiveIntegerField(null=True, blank=True)
@@ -11,11 +14,12 @@ class Workout(models.Model):
         return f"{self.title} ({self.date})"
 
     def get_absolute_url(self):
-        return reverse('workout-detail', args=[str(self.id)])
+        return reverse("workout-detail", args=[str(self.id)])
+
 
 class WorkoutExercise(models.Model):
     workout = models.ForeignKey(Workout, on_delete=models.CASCADE, related_name="exercises")
-    exercise = models.ForeignKey('exercises.Exercise', on_delete=models.PROTECT)
+    exercise = models.ForeignKey("exercises.Exercise", on_delete=models.PROTECT)
     order = models.PositiveIntegerField(default=1)
 
     class Meta:
@@ -23,6 +27,7 @@ class WorkoutExercise(models.Model):
 
     def __str__(self):
         return f"{self.exercise.name} in {self.workout.title}"
+
 
 class WorkoutSet(models.Model):
     workout_exercise = models.ForeignKey(WorkoutExercise, on_delete=models.CASCADE, related_name="sets")

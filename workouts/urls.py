@@ -1,16 +1,11 @@
 from django.urls import path
-from .views import (
-    WorkoutListView,
-    WorkoutDetailView,
-    WorkoutCreateView,
-    WorkoutUpdateView,
-    WorkoutDeleteView,
-)
+from . import views
 
 urlpatterns = [
-    path("", WorkoutListView.as_view(), name="workout-list"),
-    path("new/", WorkoutCreateView.as_view(), name="workout-create"),
-    path('<int:pk>/', WorkoutDetailView.as_view(), name='workout-detail'),
-    path("<int:pk>/edit/", WorkoutUpdateView.as_view(), name="workout-update"),
-    path("<int:pk>/delete/", WorkoutDeleteView.as_view(), name="workout-delete"),
+    path("", views.WorkoutListView.as_view(), name="workout-list"),
+    path("create/", views.WorkoutCreateView.as_view(), name="workout-create"),
+    path("<int:pk>/", views.WorkoutDetailView.as_view(), name="workout-detail"),
+    path("<int:pk>/edit/", views.WorkoutUpdateView.as_view(), name="workout-update"),
+    path("<int:pk>/delete/", views.WorkoutDeleteView.as_view(), name="workout-delete"),
+    path("progress/<int:exercise_id>/", views.exercise_progress, name="exercise-progress"),
 ]

@@ -1,22 +1,42 @@
 {% extends "base.html" %}
-
 {% block content %}
-<div class="container mt-4">
+
+<div class="d-flex justify-content-between align-items-center mb-2">
     <h1>{{ workout.title }}</h1>
-    <p class="text-muted">{{ workout.date }}{% if workout.duration_minutes %} &mdash; {{ workout.duration_minutes }} mins{% endif %}</p>
-    {% if workout.notes %}
-        <p>{{ workout.notes }}</p>
-    {% endif %}
+    <div class="d-flex gap-2">
+        <a href="{% url 'workout-update' workout.pk %}" class="btn btn-primary btn-sm">Edit</a>
+        <a href="{% url 'workout-delete' workout.pk %}" class="btn btn-outline-danger btn-sm">Delete</a>
+        <a href="{% url 'workout-list' %}" class="btn btn-outline-secondary btn-sm">Back</a>
+    </div>
+</div>
 
-    <hr>
+<p class="text-muted">
+    {{ workout.date }}
+    {% if workout.duration_minutes %}&mdash; {{ workout.duration_minutes }} mins{% endif %}
+</p>
+{% if workout.notes %}
+    <p class="mb-3">{{ workout.notes }}</p>
+{% endif %}
 
-    {% for group in exercise_groups %}
-    <div class="mb-4">
-        <h5>{{ group.exercise.name }}</h5>
-        <table class="table table-sm table-bordered w-auto">
+<hr>
+
+{% for group in exercise_groups %}
+<div class="card mb-3 shadow-sm">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <strong>{{ group.exercise.name }}</strong>
+        <div class="d-flex align-items-center gap-2">
+            {% if group.has_pr %}
+                <span class="badge bg-warning text-dark pr-badge">🏆 Personal Record</span>
+            {% endif %}
+            <a href="{% url 'exercise-progress' group.exercise.pk %}"
+               class="btn btn-outline-secondary btn-sm">📈 Progress</a>
+        </div>
+    </div>
+    <div class="card-body p-0">
+        <table class="table table-sm mb-0">
             <thead class="table-light">
                 <tr>
-                    <th>Set</th>
+                    <th class="ps-3">Set</th>
                     <th>Weight (kg)</th>
                     <th>Reps</th>
                 </tr>
@@ -24,7 +44,7 @@
             <tbody>
                 {% for s in group.sets %}
                 <tr>
-                    <td>{{ s.set_number }}</td>
+                    <td class="ps-3">{{ s.set_number }}</td>
                     <td>{{ s.weight }}</td>
                     <td>{{ s.reps }}</td>
                 </tr>
@@ -32,11 +52,9 @@
             </tbody>
         </table>
     </div>
-    {% empty %}
-        <p class="text-muted">No exercises logged for this workout.</p>
-    {% endfor %}
-
-    <a href="{% url 'workout-update' workout.pk %}" class="btn btn-primary btn-sm">Edit</a>
-    <a href="{% url 'workout-list' %}" class="btn btn-secondary btn-sm">Back</a>
 </div>
+{% empty %}
+<p class="text-muted">No exercises logged.</p>
+{% endfor %}
+
 {% endblock %}

@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>{{ exercise.name }} — Progress</h1>
+    <a href="javascript:history.back()" class="btn btn-outline-secondary btn-sm">Back</a>
+</div>
+
+{% if chart_data %}
+<div class="card shadow-sm">
+    <div class="card-body">
+        <canvas id="progressChart" height="100"></canvas>
+    </div>
+</div>
+{% else %}
+<p class="text-muted">No data yet for this exercise.</p>
+{% endif %}
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+(function () {
+    var data = {{ chart_data|safe }};
+    if (!data.labels.length) return;
+
+    var ctx = document.getElementById("progressChart").getContext("2d");
+    new Chart(ctx, {
+        type: "line",
+        data: {
+            labels: data.labels,
+            datasets: [{
+                label: "Best weight (kg)",
+                data: data.data,
+                borderColor: "#2d6a4f",
+                backgroundColor: "rgba(45,106,79,0.1)",
+                tension: 0.3,
+                pointRadius: 5,
+                pointHoverRadius: 7,
+                fill: true,
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: function(ctx) { return ctx.parsed.y + " kg"; }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: false,
+                    title: { display: true, text: "Weight (kg)" }
+                },
+                x: {
+                    title: { display: true, text: "Date" }
+                }
+            }
+        }
+    });
+})();
+</script>
+{% endblock %}

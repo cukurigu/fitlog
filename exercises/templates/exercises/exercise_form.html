@@ -1,11 +1,28 @@
-{% extends 'base.html' %}
-{% block title %}Exercise Form{% endblock %}
+{% extends "base.html" %}
 {% block content %}
-<h2>{% if form.instance.pk %}Edit{% else %}Create{% endif %} Exercise</h2>
-<form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit" class="btn btn-success">Save</button>
-    <a class="btn btn-secondary" href="{% url 'exercise-list' %}">Cancel</a>
-</form>
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <h1 class="mb-4">Add Custom Exercise</h1>
+        <div class="card shadow-sm">
+            <div class="card-body p-4">
+                <form method="POST">
+                    {% csrf_token %}
+                    {% for field in form %}
+                    <div class="mb-3">
+                        {{ field.label_tag }}
+                        {{ field }}
+                        {% if field.errors %}
+                            <div class="text-danger small">{{ field.errors }}</div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-success">Save Exercise</button>
+                        <a href="{% url 'exercise-list' %}" class="btn btn-outline-secondary">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}

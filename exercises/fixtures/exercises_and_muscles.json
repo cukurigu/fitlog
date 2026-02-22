@@ -1,0 +1,85 @@
+[
+{"model": "muscles.muscle", "pk": 1, "fields": {"name": "Chest", "category": "Push"}},
+{"model": "muscles.muscle", "pk": 2, "fields": {"name": "Shoulders", "category": "Push"}},
+{"model": "muscles.muscle", "pk": 3, "fields": {"name": "Triceps", "category": "Push"}},
+{"model": "muscles.muscle", "pk": 4, "fields": {"name": "Back", "category": "Pull"}},
+{"model": "muscles.muscle", "pk": 5, "fields": {"name": "Biceps", "category": "Pull"}},
+{"model": "muscles.muscle", "pk": 6, "fields": {"name": "Rear Delts", "category": "Pull"}},
+{"model": "muscles.muscle", "pk": 7, "fields": {"name": "Quads", "category": "Legs"}},
+{"model": "muscles.muscle", "pk": 8, "fields": {"name": "Hamstrings", "category": "Legs"}},
+{"model": "muscles.muscle", "pk": 9, "fields": {"name": "Glutes", "category": "Legs"}},
+{"model": "muscles.muscle", "pk": 10, "fields": {"name": "Calves", "category": "Legs"}},
+{"model": "muscles.muscle", "pk": 11, "fields": {"name": "Abs", "category": "Core"}},
+{"model": "muscles.muscle", "pk": 12, "fields": {"name": "Obliques", "category": "Core"}},
+{"model": "muscles.muscle", "pk": 13, "fields": {"name": "Lower Back", "category": "Core"}},
+
+{"model": "exercises.exercise", "pk": 1, "fields": {"name": "Barbell Bench Press", "muscle": 1, "description": "Compound chest press with a barbell on a flat bench.", "is_custom": false, "created_by": null}},
+{"model": "exercises.exercise", "pk": 2, "fields": {"name": "Incline Barbell Bench Press", "muscle": 1, "description": "Barbell press on an incline bench targeting upper chest.", "is_custom": false, "created_by": null}},
+{"model": "exercises.exercise", "pk": 3, "fields": {"name": "Dumbbell Bench Press", "muscle": 1, "description": "Chest press using dumbbells for greater range of motion.", "is_custom": false, "created_by": null}},
+{"model": "exercises.exercise", "pk": 4, "fields": {"name": "Incline Dumbbell Press", "muscle": 1, "description": "Dumbbell press on incline bench for upper chest.", "is_custom": false, "created_by": null}},
+{"model": "exercises.exercise", "pk": 5, "fields": {"name": "Cable Fly", "muscle": 1, "description": "Cable crossover isolation movement for chest.", "is_custom": false, "created_by": null}},
+{"model": "exercises.exercise", "pk": 6, "fields": {"name": "Pec Deck", "muscle": 1, "description": "Machine fly isolating the pectorals.", "is_custom": false, "created_by": null}},
+{"model": "exercises.exercise", "pk": 7, "fields": {"name": "Push Up", "muscle": 1, "description": "Bodyweight pressing movement for chest, shoulders and triceps.", "is_custom": false, "created_by": null}},
+{"model": "exercises.exercise", "pk": 8, "fields": {"name": "Dips", "muscle": 1, "description": "Bodyweight dip targeting lower chest and triceps.", "is_custom": false, "created_by": null}},
+
+{"model": "exercises.exercise", "pk": 9, "fields": {"name": "Overhead Press", "muscle": 2, "description": "Barbell press overhead for shoulder mass.", "is_custom": false, "created_by": null}},
+{"model": "exercises.exercise", "pk": 10, "fields": {"name": "Dumbbell Shoulder Press", "muscle": 2, "description": "Seated or standing dumbbell press for shoulders.", "is_custom": false, "created_by": null}},
+{"model": "exercises.exercise", "pk": 11, "fields": {"name": "Lateral Raise", "muscle": 2, "description": "Dumbbell or cable raise to the side targeting lateral delts.", "is_custom": false, "created_by": null}},
+{"model": "exercises.exercise", "pk": 12, "fields": {"name": "Front Raise", "muscle": 2, "description": "Raise to the front targeting anterior deltoid.", "is_custom": false, "created_by": null}},
+{"model": "exercises.exercise", "pk": 13, "fields": {"name": "Arnold Press", "muscle": 2, "description": "Rotating dumbbell press hitting all three delt heads.", "is_custom": false, "created_by": null}},
+
+{"model": "exercises.exercise", "pk": 14, "fields": {"name": "Tricep Pushdown", "muscle": 3, "description": "Cable pushdown isolating the triceps.", "is_custom": false, "created_by": null}},
+{"model": "exercises.exercise", "pk": 15, "fields": {"name": "Skull Crusher", "muscle": 3, "description": "Lying barbell or dumbbell extension for triceps.", "is_custom": false, "created_by": null}},
+{"model": "exercises.exercise", "pk": 16, "fields": {"name": "Overhead Tricep Extension", "muscle": 3, "description": "Dumbbell or cable extension overhead targeting long head.", "is_custom": false, "created_by": null}},
+{"model": "exercises.exercise", "pk": 17, "fields": {"name": "Close Grip Bench Press", "muscle": 3, "description": "Bench press with narrow grip emphasising triceps.", "is_custom": false, "created_by": null}},
+{"model": "exercises.exercise", "pk": 18, "fields": {"name": "Tricep Kickback", "muscle": 3, "description": "Dumbbell kickback isolating the tricep.", "is_custom": false, "created_by": null}},
+
+{"model": "exercises.exercise", "pk": 19, "fields": {"name": "Deadlift", "muscle": 4, "description": "Compound hip hinge pulling the barbell from the floor.", "is_custom": false, "created_by": null}},
+{"model": "exercises.exercise", "pk": 20, "fields": {"name": "Barbell Row", "muscle": 4, "description": "Bent-over barbell row for overall back thickness.", "is_custom": false, "created_by": null}},
+{"model": "exercises.exercise", "pk": 21, "fields": {"name": "Dumbbell Row", "muscle": 4, "description": "Single-arm dumbbell row for unilateral back development.", "is_custom": false, "created_by": null}},
+{"model": "exercises.exercise", "pk": 22, "fields": {"name": "Pull Up", "muscle": 4, "description": "Bodyweight vertical pull targeting lats and upper back.", "is_custom": false, "created_by": null}},
+{"model": "exercises.exercise", "pk": 23, "fields": {"name": "Lat Pulldown", "muscle": 4, "description": "Cable machine pulldown targeting the latissimus dorsi.", "is_custom": false, "created_by": null}},
+{"model": "exercises.exercise", "pk": 24, "fields": {"name": "Seated Cable Row", "muscle": 4, "description": "Cable row targeting mid-back and lats.", "is_custom": false, "created_by": null}},
+{"model": "exercises.exercise", "pk": 25, "fields": {"name": "T-Bar Row", "muscle": 4, "description": "Landmine or T-bar machine row for back thickness.", "is_custom": false, "created_by": null}},
+
+{"model": "exercises.exercise", "pk": 26, "fields": {"name": "Face Pull", "muscle": 6, "description": "Cable pull to the face targeting rear delts and upper back.", "is_custom": false, "created_by": null}},
+{"model": "exercises.exercise", "pk": 27, "fields": {"name": "Rear Delt Fly", "muscle": 6, "description": "Bent-over fly targeting the posterior deltoid.", "is_custom": false, "created_by": null}},
+{"model": "exercises.exercise", "pk": 28, "fields": {"name": "Reverse Pec Deck", "muscle": 6, "description": "Machine fly in reverse targeting rear delts.", "is_custom": false, "created_by": null}},
+
+{"model": "exercises.exercise", "pk": 29, "fields": {"name": "Barbell Curl", "muscle": 5, "description": "Standing barbell curl for overall bicep mass.", "is_custom": false, "created_by": null}},
+{"model": "exercises.exercise", "pk": 30, "fields": {"name": "Dumbbell Curl", "muscle": 5, "description": "Alternating or simultaneous dumbbell curl.", "is_custom": false, "created_by": null}},
+{"model": "exercises.exercise", "pk": 31, "fields": {"name": "Hammer Curl", "muscle": 5, "description": "Neutral grip curl targeting brachialis and brachioradialis.", "is_custom": false, "created_by": null}},
+{"model": "exercises.exercise", "pk": 32, "fields": {"name": "Incline Dumbbell Curl", "muscle": 5, "description": "Curl on incline bench for full bicep stretch.", "is_custom": false, "created_by": null}},
+{"model": "exercises.exercise", "pk": 33, "fields": {"name": "Preacher Curl", "muscle": 5, "description": "Curl on preacher bench isolating the biceps.", "is_custom": false, "created_by": null}},
+{"model": "exercises.exercise", "pk": 34, "fields": {"name": "Cable Curl", "muscle": 5, "description": "Bicep curl using a cable machine for constant tension.", "is_custom": false, "created_by": null}},
+
+{"model": "exercises.exercise", "pk": 35, "fields": {"name": "Squat", "muscle": 7, "description": "Barbell back squat, the king of leg exercises.", "is_custom": false, "created_by": null}},
+{"model": "exercises.exercise", "pk": 36, "fields": {"name": "Front Squat", "muscle": 7, "description": "Barbell squat with bar on front delts, quad dominant.", "is_custom": false, "created_by": null}},
+{"model": "exercises.exercise", "pk": 37, "fields": {"name": "Leg Press", "muscle": 7, "description": "Machine press targeting quads, hamstrings and glutes.", "is_custom": false, "created_by": null}},
+{"model": "exercises.exercise", "pk": 38, "fields": {"name": "Leg Extension", "muscle": 7, "description": "Machine extension isolating the quadriceps.", "is_custom": false, "created_by": null}},
+{"model": "exercises.exercise", "pk": 39, "fields": {"name": "Hack Squat", "muscle": 7, "description": "Machine squat variation emphasising the quads.", "is_custom": false, "created_by": null}},
+{"model": "exercises.exercise", "pk": 40, "fields": {"name": "Lunge", "muscle": 7, "description": "Walking or stationary lunge for quads and glutes.", "is_custom": false, "created_by": null}},
+{"model": "exercises.exercise", "pk": 41, "fields": {"name": "Bulgarian Split Squat", "muscle": 7, "description": "Rear foot elevated split squat for unilateral leg development.", "is_custom": false, "created_by": null}},
+
+{"model": "exercises.exercise", "pk": 42, "fields": {"name": "Romanian Deadlift", "muscle": 8, "description": "Hip hinge with slight knee bend targeting hamstrings.", "is_custom": false, "created_by": null}},
+{"model": "exercises.exercise", "pk": 43, "fields": {"name": "Leg Curl", "muscle": 8, "description": "Machine curl isolating the hamstrings.", "is_custom": false, "created_by": null}},
+{"model": "exercises.exercise", "pk": 44, "fields": {"name": "Stiff Leg Deadlift", "muscle": 8, "description": "Deadlift variation with minimal knee bend for hamstrings.", "is_custom": false, "created_by": null}},
+
+{"model": "exercises.exercise", "pk": 45, "fields": {"name": "Hip Thrust", "muscle": 9, "description": "Barbell hip thrust for glute mass and strength.", "is_custom": false, "created_by": null}},
+{"model": "exercises.exercise", "pk": 46, "fields": {"name": "Glute Bridge", "muscle": 9, "description": "Bodyweight or loaded bridge isolating the glutes.", "is_custom": false, "created_by": null}},
+{"model": "exercises.exercise", "pk": 47, "fields": {"name": "Cable Kickback", "muscle": 9, "description": "Cable kickback isolating the gluteus maximus.", "is_custom": false, "created_by": null}},
+
+{"model": "exercises.exercise", "pk": 48, "fields": {"name": "Standing Calf Raise", "muscle": 10, "description": "Standing raise targeting the gastrocnemius.", "is_custom": false, "created_by": null}},
+{"model": "exercises.exercise", "pk": 49, "fields": {"name": "Seated Calf Raise", "muscle": 10, "description": "Seated raise targeting the soleus muscle.", "is_custom": false, "created_by": null}},
+
+{"model": "exercises.exercise", "pk": 50, "fields": {"name": "Plank", "muscle": 11, "description": "Isometric core hold for stability and endurance.", "is_custom": false, "created_by": null}},
+{"model": "exercises.exercise", "pk": 51, "fields": {"name": "Cable Crunch", "muscle": 11, "description": "Weighted cable crunch for abdominal development.", "is_custom": false, "created_by": null}},
+{"model": "exercises.exercise", "pk": 52, "fields": {"name": "Hanging Leg Raise", "muscle": 11, "description": "Hanging from a bar, raising legs to target lower abs.", "is_custom": false, "created_by": null}},
+{"model": "exercises.exercise", "pk": 53, "fields": {"name": "Ab Wheel Rollout", "muscle": 11, "description": "Ab wheel extension for deep core strength.", "is_custom": false, "created_by": null}},
+
+{"model": "exercises.exercise", "pk": 54, "fields": {"name": "Russian Twist", "muscle": 12, "description": "Rotational core exercise targeting obliques.", "is_custom": false, "created_by": null}},
+{"model": "exercises.exercise", "pk": 55, "fields": {"name": "Side Plank", "muscle": 12, "description": "Isometric lateral hold targeting obliques.", "is_custom": false, "created_by": null}},
+
+{"model": "exercises.exercise", "pk": 56, "fields": {"name": "Back Extension", "muscle": 13, "description": "Hyperextension targeting the erector spinae.", "is_custom": false, "created_by": null}},
+{"model": "exercises.exercise", "pk": 57, "fields": {"name": "Good Morning", "muscle": 13, "description": "Barbell good morning for lower back and hamstrings.", "is_custom": false, "created_by": null}}
+]

@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container text-center d-flex flex-column align-items-center justify-content-center" style="min-height: 70vh;">
+    <div class="error-icon mb-4" style="font-size: 6rem; color: #dee2e6;">
+        <i class="fas fa-dumbbell"></i>
+    </div>
+    <h1 class="display-1 fw-bold text-primary">404</h1>
+    <h2 class="mb-3">Workout Interrupted!</h2>
+    <p class="lead text-muted mb-4">
+        We couldn't find the page you're looking for. <br>
+        Maybe it was deleted, or perhaps it's just doing another set in a different room.
+    </p>
+    <a href="/" class="btn btn-primary btn-lg px-5 shadow-sm">
+        Return to Dashboard
+    </a>
+</div>
+{% endblock %}

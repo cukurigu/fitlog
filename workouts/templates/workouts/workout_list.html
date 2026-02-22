@@ -1,32 +1,79 @@
-{% extends 'base.html' %}
-{% block title %}Workouts{% endblock %}
+{% extends "base.html" %}
 {% block content %}
-<h2>All Workouts</h2>
-<a class="btn btn-success mb-2" href="{% url 'workout-create' %}">Add Workout</a>
-<table class="table table-striped">
-    <thead>
-        <tr>
-            <th>Title</th>
-            <th>Date</th>
-            <th>Duration</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for workout in workouts %}
-        <tr>
-            <td>{{ workout.title }}</td>
-            <td>{{ workout.date }}</td>
-            <td>{{ workout.duration_minutes }} min</td>
-            <td>
-                <a class="btn btn-primary btn-sm" href="{% url 'workout-detail' workout.pk %}">View</a>
-                <a class="btn btn-warning btn-sm" href="{% url 'workout-update' workout.pk %}">Edit</a>
-                <a class="btn btn-danger btn-sm" href="{% url 'workout-delete' workout.pk %}">Delete</a>
-            </td>
-        </tr>
-        {% empty %}
-        <tr><td colspan="4">No workouts yet.</td></tr>
-        {% endfor %}
-    </tbody>
-</table>
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1>My Workouts</h1>
+    <a href="{% url 'workout-create' %}" class="btn btn-success">+ New Workout</a>
+</div>
+
+<div class="card mb-4 shadow-sm">
+    <div class="card-body">
+        <div class="d-flex align-items-center gap-4 mb-3">
+            <div>
+                <span class="fs-2 fw-bold">🔥 {{ streak }}</span>
+                <span class="text-muted ms-1">day streak</span>
+                <div class="text-muted small">Up to 2 rest days allowed</div>
+            </div>
+        </div>
+        <div class="contribution-grid" id="contribution-grid"></div>
+        <div class="d-flex gap-2 align-items-center mt-2 small text-muted">
+            <span>Less</span>
+            <div class="contribution-day level-0"></div>
+            <div class="contribution-day level-2"></div>
+            <span>More</span>
+        </div>
+    </div>
+</div>
+
+{% if workouts %}
+<div class="list-group shadow-sm">
+    {% for workout in workouts %}
+    <a href="{% url 'workout-detail' workout.pk %}"
+       class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+        <div>
+            <strong>{{ workout.title }}</strong>
+            <span class="text-muted ms-2 small">{{ workout.date }}</span>
+            {% if workout.duration_minutes %}
+                <span class="badge bg-secondary ms-2">{{ workout.duration_minutes }} min</span>
+            {% endif %}
+        </div>
+        <div class="d-flex gap-2">
+            <a href="{% url 'workout-update' workout.pk %}"
+               class="btn btn-outline-primary btn-sm"
+               onclick="event.stopPropagation()">Edit</a>
+            <a href="{% url 'workout-delete' workout.pk %}"
+               class="btn btn-outline-danger btn-sm"
+               onclick="event.stopPropagation()">Delete</a>
+        </div>
+    </a>
+    {% endfor %}
+</div>
+{% else %}
+<p class="text-muted">No workouts yet. <a href="{% url 'workout-create' %}">Log your first one!</a></p>
+{% endif %}
+
+<script>
+(function () {
+    var weeks = {{ contribution_weeks|safe }};
+    var grid = document.getElementById("contribution-grid");
+    var days = ["S","M","T","W","T","F","S"];
+
+    weeks.forEach(function (week) {
+        var col = document.createElement("div");
+        col.className = "contribution-week";
+        week.forEach(function (day) {
+            var cell = document.createElement("div");
+            cell.className = "contribution-day";
+            if (day.level === -1) {
+                cell.classList.add("level-future");
+            } else {
+                cell.classList.add("level-" + day.level);
+            }
+            cell.title = day.date + (day.count ? " — workout" : "");
+            col.appendChild(cell);
+        });
+        grid.appendChild(col);
+    });
+})();
+</script>
 {% endblock %}
