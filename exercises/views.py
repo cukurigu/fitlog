@@ -1,13 +1,15 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from django.db.models import Max
 from .models import Exercise
 from .forms import ExerciseForm
 from muscles.models import Muscle
 
 
-@login_required
+def _get_default_user():
+    from django.contrib.auth.models import User
+    return User.objects.first()
+
+
 def exercise_list(request):
     muscle_id = request.GET.get("muscle")
     exercises = Exercise.objects.select_related("muscle")
@@ -30,14 +32,13 @@ def exercise_list(request):
     })
 
 
-@login_required
 def exercise_create(request):
     if request.method == "POST":
         form = ExerciseForm(request.POST)
         if form.is_valid():
             exercise = form.save(commit=False)
             exercise.is_custom = True
-            exercise.created_by = request.user
+            exercise.created_by = _get_default_user()
             exercise.save()
             messages.success(request, f'"{exercise.name}" added successfully.')
             return redirect("exercise-list")
@@ -46,9 +47,9 @@ def exercise_create(request):
     return render(request, "exercises/exercise_form.html", {"form": form})
 
 
-@login_required
 def exercise_delete(request, pk):
-    exercise = get_object_or_404(Exercise, pk=pk, is_custom=True, created_by=request.user)
+    user = _get_default_user()
+    exercise = get_object_or_404(Exercise, pk=pk, is_custom=True, created_by=user)
     if request.method == "POST":
         name = exercise.name
         exercise.delete()

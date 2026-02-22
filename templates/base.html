@@ -24,18 +24,8 @@
     <div class="container">
         <a class="navbar-brand" href="/">💪 FitLog</a>
         <div class="ms-auto d-flex align-items-center gap-3">
-            {% if user.is_authenticated %}
-                <span class="text-white-50">{{ user.username }}</span>
-                <a href="{% url 'exercise-list' %}" class="btn btn-outline-light btn-sm">Exercises</a>
-                <a href="{% url 'workout-create' %}" class="btn btn-success btn-sm">+ New Workout</a>
-                <form method="POST" action="{% url 'logout' %}" class="d-inline">
-                    {% csrf_token %}
-                    <button type="submit" class="btn btn-outline-light btn-sm">Logout</button>
-                </form>
-            {% else %}
-                <a href="{% url 'login' %}" class="btn btn-outline-light btn-sm">Login</a>
-                <a href="{% url 'register' %}" class="btn btn-success btn-sm">Register</a>
-            {% endif %}
+            <a href="{% url 'exercise-list' %}" class="btn btn-outline-light btn-sm">Exercises</a>
+            <a href="{% url 'workout-create' %}" class="btn btn-success btn-sm">+ New Workout</a>
         </div>
     </div>
 </nav>

@@ -4,9 +4,6 @@ from django.views import View
 from django.views.generic import ListView, DeleteView
 from django.forms import inlineformset_factory
 from django import forms as django_forms
-from django.contrib.auth.mixins import LoginRequiredMixin
-from django.contrib.auth.decorators import login_required
-from django.utils.decorators import method_decorator
 from django.db.models import Max
 import json
 from datetime import date, timedelta
@@ -15,6 +12,10 @@ import collections
 from .models import Workout, WorkoutSet, WorkoutExercise
 from .forms import WorkoutForm, WorkoutSetFormSet
 
+
+def _get_default_user():
+    from django.contrib.auth.models import User
+    return User.objects.first()
 
 
 def _make_exercise_formset(extra):
@@ -97,7 +98,7 @@ def _contribution_data(user):
     )
 
     start = one_year_ago - timedelta(days=one_year_ago.weekday() + 1)
-    if start.weekday() != 6:  # ensure Sunday
+    if start.weekday() != 6:
         start = start - timedelta(days=(start.weekday() + 1) % 7)
 
     weeks = []
@@ -108,7 +109,7 @@ def _contribution_data(user):
             day = current + timedelta(days=d)
             count = 1 if day in workout_dates else 0
             if day > today:
-                level = -1  # future, render as empty
+                level = -1
             elif count:
                 level = 2
             else:
@@ -135,8 +136,6 @@ def _contribution_data(user):
     return weeks, streak, workout_dates
 
 
-
-@method_decorator(login_required, name="dispatch")
 class WorkoutListView(ListView):
     model = Workout
     template_name = "workouts/workout_list.html"
@@ -144,22 +143,23 @@ class WorkoutListView(ListView):
     ordering = ["-date"]
 
     def get_queryset(self):
-        return Workout.objects.filter(user=self.request.user).order_by("-date")
+        user = _get_default_user()
+        return Workout.objects.filter(user=user).order_by("-date")
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        weeks, streak, _ = _contribution_data(self.request.user)
+        user = _get_default_user()
+        weeks, streak, _ = _contribution_data(user)
         context["contribution_weeks"] = json.dumps(weeks)
         context["streak"] = streak
         return context
 
 
-
-@method_decorator(login_required, name="dispatch")
 class WorkoutDetailView(View):
     def get(self, request, pk):
-        workout = get_object_or_404(Workout, pk=pk, user=request.user)
-        all_records = _get_personal_records(request.user)
+        user = _get_default_user()
+        workout = get_object_or_404(Workout, pk=pk, user=user)
+        all_records = _get_personal_records(user)
 
         merged = {}
         for we in workout.exercises.select_related("exercise").prefetch_related("sets"):
@@ -181,22 +181,22 @@ class WorkoutDetailView(View):
             "exercise_groups": list(merged.values()),
         })
 
-@login_required
+
 def exercise_progress(request, exercise_id):
     from exercises.models import Exercise
+    user = _get_default_user()
     exercise = get_object_or_404(Exercise, pk=exercise_id)
 
     rows = (
         WorkoutSet.objects
         .filter(
             workout_exercise__exercise=exercise,
-            workout_exercise__workout__user=request.user,
+            workout_exercise__workout__user=user,
         )
         .select_related("workout_exercise__workout")
         .order_by("workout_exercise__workout__date")
     )
 
-    # Best weight per workout date
     best_by_date = collections.OrderedDict()
     for s in rows:
         d = s.workout_exercise.workout.date.isoformat()
@@ -214,7 +214,6 @@ def exercise_progress(request, exercise_id):
     })
 
 
-@method_decorator(login_required, name="dispatch")
 class WorkoutCreateView(View):
     template_name = "workouts/workout_form.html"
 
@@ -246,7 +245,7 @@ class WorkoutCreateView(View):
 
         if forms_valid:
             workout = workout_form.save(commit=False)
-            workout.user = request.user
+            workout.user = _get_default_user()
             workout.save()
             exercise_formset.instance = workout
             _save_exercises_and_sets(workout, exercise_formset, set_formsets)
@@ -256,7 +255,6 @@ class WorkoutCreateView(View):
                       self._context(workout_form, exercise_formset, set_formsets))
 
 
-@method_decorator(login_required, name="dispatch")
 class WorkoutUpdateView(View):
     template_name = "workouts/workout_form.html"
 
@@ -270,7 +268,8 @@ class WorkoutUpdateView(View):
         }
 
     def get(self, request, pk):
-        workout = get_object_or_404(Workout, pk=pk, user=request.user)
+        user = _get_default_user()
+        workout = get_object_or_404(Workout, pk=pk, user=user)
         workout_form = WorkoutForm(instance=workout)
         exercise_formset = _make_exercise_formset(extra=0)(instance=workout, prefix="exercises")
         set_formsets = _build_set_formsets(None, exercise_formset)
@@ -278,7 +277,8 @@ class WorkoutUpdateView(View):
                       self._context(workout, workout_form, exercise_formset, set_formsets))
 
     def post(self, request, pk):
-        workout = get_object_or_404(Workout, pk=pk, user=request.user)
+        user = _get_default_user()
+        workout = get_object_or_404(Workout, pk=pk, user=user)
         workout_form = WorkoutForm(request.POST, instance=workout)
         exercise_formset = _make_exercise_formset(extra=0)(request.POST, instance=workout, prefix="exercises")
         set_formsets = _build_set_formsets(request.POST, exercise_formset)
@@ -297,11 +297,12 @@ class WorkoutUpdateView(View):
         return render(request, self.template_name,
                       self._context(workout, workout_form, exercise_formset, set_formsets))
 
-@method_decorator(login_required, name="dispatch")
+
 class WorkoutDeleteView(DeleteView):
     model = Workout
     template_name = "workouts/workout_confirm_delete.html"
     success_url = reverse_lazy("workout-list")
 
     def get_queryset(self):
-        return Workout.objects.filter(user=self.request.user)
+        user = _get_default_user()
+        return Workout.objects.filter(user=user)
