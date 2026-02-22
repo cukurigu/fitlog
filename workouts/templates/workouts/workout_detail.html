@@ -39,6 +39,7 @@
                     <th class="ps-3">Set</th>
                     <th>Weight (kg)</th>
                     <th>Reps</th>
+                    <th>Est. 1RM</th>
                 </tr>
             </thead>
             <tbody>
@@ -47,14 +48,65 @@
                     <td class="ps-3">{{ s.set_number }}</td>
                     <td>{{ s.weight }}</td>
                     <td>{{ s.reps }}</td>
+                    <td class="text-muted small">
+                        {% if s.reps == 1 %}
+                            {{ s.weight }} kg
+                        {% else %}
+                            <span class="epley-1rm"
+                                  data-weight="{{ s.weight }}"
+                                  data-reps="{{ s.reps }}">—</span> kg
+                        {% endif %}
+                    </td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
+
+        {% if group.sets %}
+        <div class="px-3 py-2 border-top bg-light small">
+            <strong>Best estimated 1RM:</strong>
+            <span class="best-1rm"
+                  data-sets="{% for s in group.sets %}{{ s.weight }},{{ s.reps }};{% endfor %}">
+                —
+            </span> kg
+        </div>
+        {% endif %}
+
     </div>
 </div>
 {% empty %}
 <p class="text-muted">No exercises logged.</p>
 {% endfor %}
+
+<script>
+(function () {
+    // Epley formula: 1RM = weight * (1 + reps / 30)
+    function epley(weight, reps) {
+        if (reps === 1) return weight;
+        return weight * (1 + reps / 30);
+    }
+
+    // Fill individual set 1RM cells
+    document.querySelectorAll('.epley-1rm').forEach(function (el) {
+        var w = parseFloat(el.dataset.weight);
+        var r = parseInt(el.dataset.reps);
+        el.textContent = epley(w, r).toFixed(1);
+    });
+
+    // Fill best 1RM per exercise
+    document.querySelectorAll('.best-1rm').forEach(function (el) {
+        var sets = el.dataset.sets.split(';').filter(Boolean);
+        var best = 0;
+        sets.forEach(function (s) {
+            var parts = s.split(',');
+            var w = parseFloat(parts[0]);
+            var r = parseInt(parts[1]);
+            var est = epley(w, r);
+            if (est > best) best = est;
+        });
+        el.textContent = best.toFixed(1);
+    });
+})();
+</script>
 
 {% endblock %}

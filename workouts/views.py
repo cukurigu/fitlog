@@ -18,6 +18,15 @@ def _get_default_user():
     return User.objects.first()
 
 
+def _exercise_muscle_json():
+    """Returns a JSON dict mapping exercise id -> muscle name, for the template filter."""
+    from exercises.models import Exercise
+    mapping = {}
+    for ex in Exercise.objects.select_related("muscle").all():
+        mapping[str(ex.pk)] = ex.muscle.name
+    return json.dumps(mapping)
+
+
 def _make_exercise_formset(extra):
     return inlineformset_factory(
         Workout, WorkoutExercise,
@@ -67,7 +76,11 @@ def _save_exercises_and_sets(workout, exercise_formset, set_formsets):
         for set_num, set_form in enumerate(set_formset.forms, start=1):
             if set_form in set_formset.deleted_forms:
                 continue
-            if not set_form.has_changed() and not set_form.instance.pk:
+            weight = set_form.data.get(set_form.add_prefix('weight'), '').strip()
+            reps = set_form.data.get(set_form.add_prefix('reps'), '').strip()
+            if not weight and not reps and not set_form.instance.pk:
+                continue
+            if not set_form.is_valid():
                 continue
             s = set_form.save(commit=False)
             s.workout_exercise = ex_instance
@@ -144,7 +157,9 @@ class WorkoutListView(ListView):
 
     def get_queryset(self):
         user = _get_default_user()
-        return Workout.objects.filter(user=user).order_by("-date")
+        return Workout.objects.filter(user=user).prefetch_related(
+            "exercises__exercise"
+        ).order_by("-date")
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -222,6 +237,7 @@ class WorkoutCreateView(View):
             "form": workout_form,
             "exercise_formset": exercise_formset,
             "exercise_set_pairs": list(zip(exercise_formset.forms, set_formsets)),
+            "exercise_muscle_json": _exercise_muscle_json(),
             "mode": "create",
         }
 
@@ -248,11 +264,9 @@ class WorkoutCreateView(View):
             workout.user = _get_default_user()
             workout.save()
             exercise_formset.instance = workout
+            set_formsets = _build_set_formsets(request.POST, exercise_formset)
             _save_exercises_and_sets(workout, exercise_formset, set_formsets)
             return redirect(workout.get_absolute_url())
-
-        return render(request, self.template_name,
-                      self._context(workout_form, exercise_formset, set_formsets))
 
 
 class WorkoutUpdateView(View):
@@ -264,6 +278,7 @@ class WorkoutUpdateView(View):
             "form": workout_form,
             "exercise_formset": exercise_formset,
             "exercise_set_pairs": list(zip(exercise_formset.forms, set_formsets)),
+            "exercise_muscle_json": _exercise_muscle_json(),
             "mode": "edit",
         }
 

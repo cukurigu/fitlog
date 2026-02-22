@@ -1,18 +1,124 @@
 {% extends "base.html" %}
 {% block content %}
-<div class="row justify-content-center mt-5">
-    <div class="col-md-5">
-        <div class="card shadow-sm border-danger">
-            <div class="card-body text-center p-4">
-                <h4>Delete "{{ exercise.name }}"?</h4>
-                <p class="text-muted">This cannot be undone.</p>
-                <form method="POST">
-                    {% csrf_token %}
-                    <button type="submit" class="btn btn-danger me-2">Yes, delete</button>
-                    <a href="{% url 'exercise-list' %}" class="btn btn-outline-secondary">Cancel</a>
-                </form>
-            </div>
+
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700&family=Barlow:wght@400;500&display=swap');
+
+    .delete-page {
+        min-height: 70vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .delete-card {
+        width: 100%;
+        max-width: 480px;
+        background: #111;
+        border: 1px solid #2a2a2a;
+        border-top: 4px solid #e63946;
+        padding: 2.5rem 2.5rem 2rem;
+    }
+
+    .delete-icon {
+        font-size: 2.8rem;
+        margin-bottom: 1rem;
+        display: block;
+    }
+
+    .delete-title {
+        font-family: 'Barlow Condensed', sans-serif;
+        font-size: 1.9rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: #fff;
+        margin-bottom: 0.4rem;
+    }
+
+    .delete-subject {
+        font-family: 'Barlow Condensed', sans-serif;
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: #e63946;
+        margin-bottom: 1.2rem;
+        word-break: break-word;
+    }
+
+    .delete-warning {
+        font-family: 'Barlow', sans-serif;
+        font-size: 0.88rem;
+        color: #888;
+        margin-bottom: 2rem;
+        line-height: 1.6;
+        padding: 0.8rem 1rem;
+        border-left: 3px solid #333;
+        background: #1a1a1a;
+    }
+
+    .delete-actions {
+        display: flex;
+        gap: 0.75rem;
+    }
+
+    .btn-confirm-delete {
+        flex: 1;
+        background: #e63946;
+        color: #fff;
+        border: none;
+        font-family: 'Barlow Condensed', sans-serif;
+        font-size: 1rem;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        padding: 0.7rem 1.5rem;
+        cursor: pointer;
+        transition: background 0.15s, transform 0.1s;
+    }
+
+    .btn-confirm-delete:hover {
+        background: #c1121f;
+        transform: translateY(-1px);
+    }
+
+    .btn-cancel {
+        flex: 1;
+        background: transparent;
+        color: #888;
+        border: 1px solid #333;
+        font-family: 'Barlow Condensed', sans-serif;
+        font-size: 1rem;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        padding: 0.7rem 1.5rem;
+        text-decoration: none;
+        text-align: center;
+        transition: color 0.15s, border-color 0.15s;
+    }
+
+    .btn-cancel:hover {
+        color: #fff;
+        border-color: #555;
+    }
+</style>
+
+<div class="delete-page">
+    <div class="delete-card">
+        <span class="delete-icon">🗑️</span>
+        <div class="delete-title">Delete Exercise</div>
+        <div class="delete-subject">"{{ exercise.name }}"</div>
+        <div class="delete-warning">
+            This will permanently remove this custom exercise. Any workouts that logged this exercise will retain their historical data, but the exercise will no longer be available to select. This cannot be undone.
+        </div>
+        <div class="delete-actions">
+            <form method="POST" style="flex:1">
+                {% csrf_token %}
+                <button type="submit" class="btn-confirm-delete" style="width:100%">Yes, Delete</button>
+            </form>
+            <a href="{% url 'exercise-list' %}" class="btn-cancel">Cancel</a>
         </div>
     </div>
 </div>
+
 {% endblock %}

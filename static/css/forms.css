@@ -1,0 +1,507 @@
+/* ============================================================
+   FitLog — Forms CSS
+   Aesthetic: Industrial / Utilitarian gym aesthetic
+   Dark panels, sharp edges, high-contrast accents
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700&family=Barlow:wght@400;500&display=swap');
+
+/* ── Variables ────────────────────────────────────────────── */
+:root {
+    --bg:           #0f0f0f;
+    --surface:      #1a1a1a;
+    --surface-2:    #242424;
+    --surface-3:    #2e2e2e;
+    --border:       #333;
+    --border-bright:#444;
+    --accent:       #c8f135;   /* electric lime */
+    --accent-dim:   #8aaa1f;
+    --text:         #e8e8e8;
+    --text-muted:   #888;
+    --text-dim:     #555;
+    --danger:       #ff4444;
+    --danger-dim:   #7a1c1c;
+    --radius:       3px;
+    --font-display: 'Barlow Condensed', sans-serif;
+    --font-body:    'Barlow', sans-serif;
+}
+
+/* ── Page base ────────────────────────────────────────────── */
+body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-body);
+}
+
+.fitlog-page {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 2rem 1rem 4rem;
+}
+
+.fitlog-page--narrow {
+    max-width: 520px;
+}
+
+/* ── Page header ──────────────────────────────────────────── */
+.page-header {
+    position: relative;
+    margin-bottom: 2.5rem;
+    padding-left: 1.2rem;
+}
+
+.page-header-accent {
+    position: absolute;
+    left: 0;
+    top: 4px;
+    bottom: 4px;
+    width: 4px;
+    background: var(--accent);
+}
+
+.page-title {
+    font-family: var(--font-display);
+    font-size: 2.4rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    margin: 0 0 0.2rem;
+    color: #fff;
+}
+
+.page-subtitle {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    margin: 0;
+    letter-spacing: 0.02em;
+}
+
+/* ── Form card ────────────────────────────────────────────── */
+.form-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-top: 3px solid var(--accent);
+    padding: 1.8rem;
+    margin-bottom: 1.5rem;
+    position: relative;
+}
+
+.form-card-label {
+    position: absolute;
+    top: -1px;
+    right: 1.2rem;
+    background: var(--accent);
+    color: #000;
+    font-family: var(--font-display);
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 2px 10px;
+}
+
+/* ── Form grid ────────────────────────────────────────────── */
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.2rem;
+}
+
+.field-group--full {
+    grid-column: 1 / -1;
+}
+
+/* ── Field group ──────────────────────────────────────────── */
+.field-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    margin-bottom: 1.1rem;
+}
+
+.field-group:last-child {
+    margin-bottom: 0;
+}
+
+.field-label,
+.field-group label,
+.field-group > label {
+    font-family: var(--font-display);
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+}
+
+/* ── Inputs ───────────────────────────────────────────────── */
+input[type="text"],
+input[type="number"],
+input[type="date"],
+textarea,
+select,
+.fitlog-select {
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--text);
+    font-family: var(--font-body);
+    font-size: 0.95rem;
+    padding: 0.55rem 0.75rem;
+    width: 100%;
+    transition: border-color 0.15s, box-shadow 0.15s;
+    outline: none;
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+input[type="text"]:focus,
+input[type="number"]:focus,
+input[type="date"]:focus,
+textarea:focus,
+select:focus,
+.fitlog-select:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px rgba(200, 241, 53, 0.12);
+}
+
+textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+
+select,
+.fitlog-select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23888' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    padding-right: 2rem;
+}
+
+.field-error {
+    font-size: 0.8rem;
+    color: var(--danger);
+}
+
+/* ── Section divider ──────────────────────────────────────── */
+.section-divider {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin: 2rem 0 1.5rem;
+}
+
+.section-divider::before,
+.section-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+}
+
+.section-divider-text {
+    font-family: var(--font-display);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--accent);
+    white-space: nowrap;
+}
+
+/* ── Exercise card ────────────────────────────────────────── */
+.exercise-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--border-bright);
+    padding: 1.4rem 1.6rem;
+    margin-bottom: 1rem;
+    transition: border-left-color 0.2s, opacity 0.3s, transform 0.3s;
+}
+
+.exercise-card:hover {
+    border-left-color: var(--accent);
+}
+
+.exercise-card--deleted {
+    opacity: 0;
+    transform: translateX(-8px);
+}
+
+.exercise-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.2rem;
+}
+
+.exercise-card-num {
+    font-family: var(--font-display);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+}
+
+/* ── Muscle filter ────────────────────────────────────────── */
+.muscle-field-group {
+    margin-bottom: 0.8rem;
+}
+
+/* ── Sets ─────────────────────────────────────────────────── */
+.sets-section {
+    margin-top: 1.2rem;
+    padding-top: 1.2rem;
+    border-top: 1px solid var(--border);
+}
+
+.sets-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.6rem;
+}
+
+.sets-title {
+    font-family: var(--font-display);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+}
+
+.sets-legend {
+    display: flex;
+    gap: 0.6rem;
+    font-family: var(--font-display);
+    font-size: 0.62rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+}
+
+.sets-legend span:nth-child(1) { width: 48px; text-align: center; }
+.sets-legend span:nth-child(2) { width: 80px; text-align: center; }
+.sets-legend span:nth-child(3) { width: 70px; text-align: center; }
+
+.sets-container {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 0.8rem;
+}
+
+.set-row {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    padding: 0.5rem 0.75rem;
+    border-radius: var(--radius);
+    transition: opacity 0.2s, background 0.15s;
+}
+
+.set-row--new {
+    opacity: 0;
+}
+
+.set-row:hover {
+    background: var(--surface-3);
+}
+
+.set-fields {
+    display: flex;
+    gap: 0.5rem;
+    flex: 1;
+    align-items: center;
+}
+
+.set-input,
+.set-fields input[type="number"] {
+    background: var(--surface-3);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--text);
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+    padding: 0.35rem 0.5rem;
+    text-align: center;
+    outline: none;
+    width: 100%;
+    transition: border-color 0.15s;
+}
+
+.set-input:focus,
+.set-fields input[type="number"]:focus {
+    border-color: var(--accent);
+}
+
+.set-fields input[name$="-set_number"] { width: 48px; flex-shrink: 0; }
+.set-fields input[name$="-weight"]     { width: 80px; flex-shrink: 0; }
+.set-fields input[name$="-reps"]       { width: 70px; flex-shrink: 0; }
+
+/* ── Buttons ──────────────────────────────────────────────── */
+.btn-remove {
+    background: transparent;
+    border: 1px solid var(--danger-dim);
+    color: var(--danger);
+    font-family: var(--font-display);
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+}
+
+.btn-remove:hover {
+    background: var(--danger-dim);
+    border-color: var(--danger);
+}
+
+.btn-remove-set {
+    background: transparent;
+    border: none;
+    color: var(--text-dim);
+    font-size: 0.75rem;
+    cursor: pointer;
+    padding: 2px 6px;
+    border-radius: var(--radius);
+    transition: color 0.15s;
+    flex-shrink: 0;
+}
+
+.btn-remove-set:hover {
+    color: var(--danger);
+}
+
+.btn-add-set {
+    background: transparent;
+    border: 1px dashed var(--border-bright);
+    color: var(--text-muted);
+    font-family: var(--font-display);
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 6px 16px;
+    border-radius: var(--radius);
+    cursor: pointer;
+    width: 100%;
+    transition: border-color 0.15s, color 0.15s;
+}
+
+.btn-add-set:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+}
+
+.btn-add-exercise {
+    display: block;
+    width: 100%;
+    background: transparent;
+    border: 1px dashed var(--border-bright);
+    color: var(--text-muted);
+    font-family: var(--font-display);
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 14px;
+    border-radius: var(--radius);
+    cursor: pointer;
+    margin-bottom: 2rem;
+    transition: border-color 0.15s, color 0.15s, background 0.15s;
+}
+
+.btn-add-exercise:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: rgba(200, 241, 53, 0.04);
+}
+
+/* ── Form actions ─────────────────────────────────────────── */
+.form-actions {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    padding-top: 1rem;
+}
+
+.btn-primary-action {
+    background: var(--accent);
+    color: #000;
+    border: none;
+    font-family: var(--font-display);
+    font-size: 0.9rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 0.7rem 2rem;
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: background 0.15s, transform 0.1s;
+}
+
+.btn-primary-action:hover {
+    background: #d6ff3a;
+    transform: translateY(-1px);
+}
+
+.btn-primary-action:active {
+    transform: translateY(0);
+}
+
+.btn-cancel-action {
+    color: var(--text-muted);
+    font-family: var(--font-display);
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    text-decoration: none;
+    padding: 0.7rem 1rem;
+    border-radius: var(--radius);
+    transition: color 0.15s;
+}
+
+.btn-cancel-action:hover {
+    color: var(--text);
+}
+
+/* ── Navbar override ──────────────────────────────────────── */
+.navbar.bg-dark {
+    background: #000 !important;
+    border-bottom: 1px solid var(--border);
+}
+
+.navbar-brand {
+    font-family: var(--font-display) !important;
+    font-size: 1.3rem !important;
+    letter-spacing: 0.12em !important;
+    text-transform: uppercase;
+    color: var(--accent) !important;
+}
+
+/* ── Responsive ───────────────────────────────────────────── */
+@media (max-width: 640px) {
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .sets-legend { display: none; }
+
+    .set-fields {
+        flex-wrap: wrap;
+    }
+
+    .page-title {
+        font-size: 1.8rem;
+    }
+}

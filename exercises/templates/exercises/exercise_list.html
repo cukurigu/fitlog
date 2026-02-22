@@ -61,7 +61,7 @@
                         <div class="text-muted small">{{ exercise.description }}</div>
                     {% endif %}
                 </div>
-                {% if exercise.is_custom and exercise.created_by == request.user %}
+                {% if exercise.is_custom %}
                 <form method="POST" action="{% url 'exercise-delete' exercise.pk %}"
                       onsubmit="return confirm('Delete {{ exercise.name }}?')">
                     {% csrf_token %}

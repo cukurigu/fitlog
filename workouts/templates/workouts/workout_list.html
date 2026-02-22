@@ -26,26 +26,32 @@
 </div>
 
 {% if workouts %}
-<div class="list-group shadow-sm">
+<div class="d-flex flex-column gap-3">
     {% for workout in workouts %}
-    <a href="{% url 'workout-detail' workout.pk %}"
-       class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
-        <div>
-            <strong>{{ workout.title }}</strong>
-            <span class="text-muted ms-2 small">{{ workout.date }}</span>
-            {% if workout.duration_minutes %}
-                <span class="badge bg-secondary ms-2">{{ workout.duration_minutes }} min</span>
-            {% endif %}
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-start">
+                <a href="{% url 'workout-detail' workout.pk %}" class="text-decoration-none text-dark flex-grow-1 me-3">
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                        <strong class="fs-5">{{ workout.title }}</strong>
+                        <span class="text-muted small">{{ workout.date }}</span>
+                        {% if workout.duration_minutes %}
+                            <span class="badge bg-secondary">{{ workout.duration_minutes }} min</span>
+                        {% endif %}
+                    </div>
+                    <div class="d-flex flex-wrap gap-1">
+                        {% for we in workout.exercises.all %}
+                            <span class="badge bg-light text-dark border">{{ we.exercise.name }}</span>
+                        {% endfor %}
+                    </div>
+                </a>
+                <div class="d-flex gap-2 flex-shrink-0">
+                    <a href="{% url 'workout-update' workout.pk %}" class="btn btn-outline-primary btn-sm">Edit</a>
+                    <a href="{% url 'workout-delete' workout.pk %}" class="btn btn-outline-danger btn-sm">Delete</a>
+                </div>
+            </div>
         </div>
-        <div class="d-flex gap-2">
-            <a href="{% url 'workout-update' workout.pk %}"
-               class="btn btn-outline-primary btn-sm"
-               onclick="event.stopPropagation()">Edit</a>
-            <a href="{% url 'workout-delete' workout.pk %}"
-               class="btn btn-outline-danger btn-sm"
-               onclick="event.stopPropagation()">Delete</a>
-        </div>
-    </a>
+    </div>
     {% endfor %}
 </div>
 {% else %}
@@ -56,7 +62,6 @@
 (function () {
     var weeks = {{ contribution_weeks|safe }};
     var grid = document.getElementById("contribution-grid");
-    var days = ["S","M","T","W","T","F","S"];
 
     weeks.forEach(function (week) {
         var col = document.createElement("div");

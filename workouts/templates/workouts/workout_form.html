@@ -28,7 +28,28 @@
         <hr>
         <h3>Exercises</h3>
 
+        {% if mode != "edit" %}
+        <div class="mb-3">
+            <p class="text-muted small mb-2">Quick start with a preset:</p>
+            <div class="d-flex flex-wrap gap-2">
+                <button type="button" class="btn btn-outline-primary btn-sm preset-btn" data-preset="push">💪 Push Day</button>
+                <button type="button" class="btn btn-outline-primary btn-sm preset-btn" data-preset="pull">🔙 Pull Day</button>
+                <button type="button" class="btn btn-outline-primary btn-sm preset-btn" data-preset="legs">🦵 Legs Day</button>
+                <button type="button" class="btn btn-outline-primary btn-sm preset-btn" data-preset="arms">💪 Arms Day</button>
+                <button type="button" class="btn btn-outline-primary btn-sm preset-btn" data-preset="chest">🏋️ Chest Day</button>
+                <button type="button" class="btn btn-outline-primary btn-sm preset-btn" data-preset="back">🔝 Back Day</button>
+            </div>
+        </div>
+        {% endif %}
+
         {{ exercise_formset.management_form }}
+
+        {# Hidden select that always has all exercise options — used as JS source #}
+        <div style="display:none">
+            {% if exercise_set_pairs %}
+                {{ exercise_set_pairs.0.0.exercise }}
+            {% endif %}
+        </div>
 
         <div id="exercises-container">
             {% for ex_form, set_formset in exercise_set_pairs %}
@@ -41,6 +62,13 @@
                         class="btn btn-danger btn-sm float-end remove-exercise">
                     Remove Exercise
                 </button>
+
+                <div class="mb-2">
+                    <label><strong>Muscle Group:</strong></label>
+                    <select class="muscle-filter-select form-select form-select-sm d-inline-block w-auto ms-1">
+                        <option value="">— All —</option>
+                    </select>
+                </div>
 
                 <div class="mb-2">
                     {{ ex_form.exercise.label_tag }} {{ ex_form.exercise }}
@@ -94,17 +122,83 @@
 <script>
 $(function () {
 
+    var muscleMap = Object.assign({
+        "1":"Chest","2":"Chest","3":"Chest","4":"Chest","5":"Chest","6":"Chest","7":"Chest","8":"Chest",
+        "9":"Shoulders","10":"Shoulders","11":"Shoulders","12":"Shoulders","13":"Shoulders",
+        "14":"Triceps","15":"Triceps","16":"Triceps","17":"Triceps","18":"Triceps",
+        "19":"Back","20":"Back","21":"Back","22":"Back","23":"Back","24":"Back","25":"Back",
+        "26":"Rear Delts","27":"Rear Delts","28":"Rear Delts",
+        "29":"Biceps","30":"Biceps","31":"Biceps","32":"Biceps","33":"Biceps","34":"Biceps",
+        "35":"Quads","36":"Quads","37":"Quads","38":"Quads","39":"Quads","40":"Quads","41":"Quads",
+        "42":"Hamstrings","43":"Hamstrings","44":"Hamstrings",
+        "45":"Glutes","46":"Glutes","47":"Glutes",
+        "48":"Calves","49":"Calves",
+        "50":"Abs","51":"Abs","52":"Abs","53":"Abs",
+        "54":"Obliques","55":"Obliques",
+        "56":"Lower Back","57":"Lower Back"
+    }, {{ exercise_muscle_json|default:"{}"|safe }});
+
+    var presets = {
+        push:  { title: "Push Day",  exercises: [1, 9, 14, 16] },
+        pull:  { title: "Pull Day",  exercises: [19, 20, 23, 29] },
+        legs:  { title: "Legs Day",  exercises: [35, 42, 37, 43] },
+        arms:  { title: "Arms Day",  exercises: [29, 31, 14, 15] },
+        chest: { title: "Chest Day", exercises: [1, 2, 5, 6] },
+        back:  { title: "Back Day",  exercises: [19, 22, 23, 24] }
+    };
+
+    var allMuscles = [];
+    (function(){
+        var seen = {};
+        $.each(muscleMap, function(_, m){ if (!seen[m]){ seen[m]=true; allMuscles.push(m); } });
+        allMuscles.sort();
+    })();
+
+    // Snapshot options from ANY select with exercise options on the page
+    var allExerciseOptions = [];
+    $('select[name$="-exercise"] option, select[id$="-exercise"] option').each(function(){
+        var val = $(this).val();
+        if (!val) return;
+        // avoid duplicates
+        for (var i = 0; i < allExerciseOptions.length; i++) {
+            if (allExerciseOptions[i].val === val) return;
+        }
+        allExerciseOptions.push({ val: val, text: $(this).text(), muscle: muscleMap[val] || '' });
+    });
+
+    function populateMuscleSelect($sel) {
+        var html = '<option value="">— All —</option>';
+        allMuscles.forEach(function(m){ html += '<option value="'+m+'">'+m+'</option>'; });
+        $sel.html(html);
+    }
+
+    function applyFilter($exercise, muscle) {
+        var $exSel = $exercise.find('select[name$="-exercise"]');
+        var current = $exSel.val();
+        var html = '<option value="">---------</option>';
+        allExerciseOptions.forEach(function(o){
+            if (!muscle || o.muscle === muscle)
+                html += '<option value="'+o.val+'">'+o.text+'</option>';
+        });
+        $exSel.html(html);
+        if (current && (!muscle || muscleMap[current] === muscle)) $exSel.val(current);
+    }
+
+    function initMuscleFilter($exercise) {
+        var $mSel = $exercise.find('.muscle-filter-select');
+        populateMuscleSelect($mSel);
+        var currentEx = $exercise.find('select[name$="-exercise"]').val();
+        if (currentEx && muscleMap[currentEx]) $mSel.val(muscleMap[currentEx]);
+        $mSel.on('change', function(){ applyFilter($exercise, $(this).val()); });
+    }
+
+    $('#exercises-container .exercise').each(function(){ initMuscleFilter($(this)); });
+
     var exerciseTotal = parseInt($('#id_exercises-TOTAL_FORMS').val(), 10);
 
     $('#exercises-container .exercise').each(function (i) {
         $(this).find('input[name$="-order"]').val(i + 1);
     });
-
-    function replaceIndex(str, oldIdx, newIdx) {
-        str = str.replace(new RegExp('(exercises-)' + oldIdx + '(-)', 'g'), '$1' + newIdx + '$2');
-        str = str.replace(new RegExp('(sets-)' + oldIdx + '(-)', 'g'), '$1' + newIdx + '$2');
-        return str;
-    }
 
     function renumberSets($container) {
         $container.find('.set').each(function (i) {
@@ -123,44 +217,61 @@ $(function () {
         $('#id_sets-' + exIdx + '-TOTAL_FORMS').val(setCount);
     }
 
-    $('#add-exercise').on('click', function () {
-        var newIdx = exerciseTotal;
+    function addExerciseCard(exerciseId) {
+        var idx = exerciseTotal;
+
+        var exOpts = '<option value="">---------</option>';
+        allExerciseOptions.forEach(function(o){
+            exOpts += '<option value="'+o.val+'"' + (String(o.val) === String(exerciseId) ? ' selected' : '') + '>'+o.text+'</option>';
+        });
 
         var $newExercise = $([
-            '<div class="exercise border p-3 mb-3" data-exercise-index="' + newIdx + '">',
-            '<input type="hidden" name="sets-' + newIdx + '-TOTAL_FORMS" id="id_sets-' + newIdx + '-TOTAL_FORMS" value="0">',
-            '<input type="hidden" name="sets-' + newIdx + '-INITIAL_FORMS" id="id_sets-' + newIdx + '-INITIAL_FORMS" value="0">',
-            '<input type="hidden" name="sets-' + newIdx + '-MIN_NUM_FORMS" id="id_sets-' + newIdx + '-MIN_NUM_FORMS" value="0">',
-            '<input type="hidden" name="sets-' + newIdx + '-MAX_NUM_FORMS" id="id_sets-' + newIdx + '-MAX_NUM_FORMS" value="1000">',
+            '<div class="exercise border p-3 mb-3" data-exercise-index="' + idx + '">',
+            '<input type="hidden" name="sets-' + idx + '-TOTAL_FORMS" id="id_sets-' + idx + '-TOTAL_FORMS" value="0">',
+            '<input type="hidden" name="sets-' + idx + '-INITIAL_FORMS" id="id_sets-' + idx + '-INITIAL_FORMS" value="0">',
+            '<input type="hidden" name="sets-' + idx + '-MIN_NUM_FORMS" id="id_sets-' + idx + '-MIN_NUM_FORMS" value="0">',
+            '<input type="hidden" name="sets-' + idx + '-MAX_NUM_FORMS" id="id_sets-' + idx + '-MAX_NUM_FORMS" value="1000">',
             '<button type="button" class="btn btn-danger btn-sm float-end remove-exercise">Remove Exercise</button>',
-            '<div class="mb-2"></div>',
+            '<div class="mb-2"><label><strong>Muscle Group:</strong></label> <select class="muscle-filter-select form-select form-select-sm d-inline-block w-auto ms-1"><option value="">— All —</option></select></div>',
+            '<div class="mb-2">',
+            '<label for="id_exercises-' + idx + '-exercise">Exercise:</label>',
+            '<select name="exercises-' + idx + '-exercise" id="id_exercises-' + idx + '-exercise" class="form-select">' + exOpts + '</select>',
+            '<input type="hidden" name="exercises-' + idx + '-order" value="' + (idx + 1) + '">',
+            '<input type="hidden" name="exercises-' + idx + '-id" value="">',
+            '</div>',
             '<h5>Sets</h5>',
             '<div class="sets-container"></div>',
             '<button type="button" class="btn btn-secondary btn-sm mt-2 add-set">+ Add Set</button>',
             '</div>'
         ].join(''));
 
-        var $firstSelect = $('#exercises-container .exercise:first select[name$="-exercise"]');
-        if ($firstSelect.length) {
-            var $selectClone = $firstSelect.clone();
-            $selectClone
-                .attr('name', 'exercises-' + newIdx + '-exercise')
-                .attr('id', 'id_exercises-' + newIdx + '-exercise')
-                .val('');
-            $newExercise.find('.mb-2').prepend(
-                $('<label>').attr('for', 'id_exercises-' + newIdx + '-exercise').text('Exercise:'),
-                $selectClone
-            );
-        }
-
-        $newExercise.find('.mb-2').append(
-            $('<input>').attr({type: 'hidden', name: 'exercises-' + newIdx + '-order', value: newIdx + 1}),
-            $('<input>').attr({type: 'hidden', name: 'exercises-' + newIdx + '-id', value: ''})
-        );
-
         $('#exercises-container').append($newExercise);
+        initMuscleFilter($newExercise);
         exerciseTotal++;
         $('#id_exercises-TOTAL_FORMS').val(exerciseTotal);
+    }
+
+    $('.preset-btn').on('click', function () {
+        var preset = presets[$(this).data('preset')];
+        if (!preset) return;
+
+        if ($('#exercises-container .exercise').length > 0) {
+            if (!confirm('This will replace your current exercises. Continue?')) return;
+        }
+
+        $('#id_title').val(preset.title);
+
+        $('#exercises-container .exercise').remove();
+        exerciseTotal = 0;
+        $('#id_exercises-TOTAL_FORMS').val(0);
+
+        preset.exercises.forEach(function (exId) {
+            addExerciseCard(exId);
+        });
+    });
+
+    $('#add-exercise').on('click', function () {
+        addExerciseCard(null);
     });
 
     $(document).on('click', '.remove-exercise', function () {
